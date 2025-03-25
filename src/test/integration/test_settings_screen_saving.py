@@ -20,9 +20,9 @@ from pathlib import Path
 from typing import Tuple
 
 from test.file_system_tester_state import FileSystemState
+from test.ini_assertions import assertEqualIni
 from test.testing_objects import downloader_ini, update_arcade_organizer_ini, default_downloader_ini_content, \
-    store_json_zip
-from test.ui_model_test_utils import gather_used_effects
+    store_json_zip, downloader_ini_content_only_update_all_db
 from test.update_all_service_tester import SettingsScreenTester, UiContextStub, EnvironmentSetupTester
 from update_all.config import Config
 from update_all.ini_repository import read_ini_contents
@@ -31,8 +31,6 @@ from update_all.other import GenericProvider
 from test.fake_filesystem import FileSystemFactory
 from update_all.databases import db_ids_to_model_variable_pairs
 from update_all.settings_screen import SettingsScreen
-from update_all.settings_screen_model import settings_screen_model
-from update_all.ui_model_utilities import gather_variable_declarations
 
 
 class TestSettingsScreenSaving(unittest.TestCase):
@@ -45,10 +43,11 @@ class TestSettingsScreenSaving(unittest.TestCase):
         self.assertEqual(state.files[downloader_ini]['content'], default_downloader_ini_content())
 
     def test_calculate_needs_save___on_empty_downloader_ini_file___returns_no_changes(self) -> None:
-        sut, ui, _ = tester(files={downloader_ini: {'content': ''}})
+        sut, ui, state = tester(files={downloader_ini: {'content': ''}})
         sut.calculate_needs_save(ui)
         self.assertEqual('', ui.get_value('needs_save_file_list'))
         self.assertEqual('false', ui.get_value('needs_save'))
+        assertEqualIni(self, state.files[downloader_ini]['content'], downloader_ini_content_only_update_all_db())
 
     def test_save___on_no_files_setup___creates_default_downloader_ini(self) -> None:
         sut, ui, fs = tester()
@@ -78,9 +77,10 @@ class TestSettingsScreenSaving(unittest.TestCase):
         self.assertEqual('false', ui.get_value('needs_save'))
 
     def test_calculate_needs_save___with_arcade_organized_toggled___returns_arcade_organizer_ini_changes(self):
-        sut, ui, _ = tester(files={downloader_ini: {'content': default_downloader_ini_content()}})
+        sut, ui, state = tester(files={downloader_ini: {'content': default_downloader_ini_content()}})
         ui.set_value('arcade_organizer', str(not Config().arcade_organizer).lower())
         sut.calculate_needs_save(ui)
+        self.assertEqual(state.files[downloader_ini]['content'], default_downloader_ini_content())
         self.assertEqual('  - update_arcade-organizer.ini', ui.get_value('needs_save_file_list'))
         self.assertEqual('true', ui.get_value('needs_save'))
 

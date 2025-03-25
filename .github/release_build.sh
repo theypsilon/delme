@@ -45,7 +45,7 @@ if int(changes) >= 1:
                 'size': os.path.getsize('update_all_latest.zip'),
                 'hash': hash_file('update_all_latest.zip'),
                 'url': f'https://raw.githubusercontent.com/theypsilon/Update_All_MiSTer/{commit_id}/update_all_latest.zip',
-                'tags': ['updatealllatest', 'updateall']
+                'tags': []
             }
         },
         "folders": {'Scripts': {}, 'Scripts/.config': {}, 'Scripts/.config/update_all': {}},

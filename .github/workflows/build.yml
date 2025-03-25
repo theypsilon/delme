@@ -44,4 +44,4 @@ jobs:
       run: |
         git config --global user.email "theypsilon@gmail.com"
         git config --global user.name "The CI/CD Bot"
-        ./.github/release.sh
+        ./.github/release_build.sh

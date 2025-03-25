@@ -24,13 +24,13 @@ from typing import List
 from update_all.analogue_pocket.firmware_update import pocket_firmware_update
 from update_all.analogue_pocket.pocket_backup import pocket_backup
 from update_all.analogue_pocket.utils import is_pocket_mounted
+from update_all.arcade_organizer.arcade_organizer import ArcadeOrganizerService
 from update_all.cli_output_formatting import CLEAR_SCREEN
 from update_all.config import Config
 from update_all.downloader_utils import prepare_latest_downloader
 from update_all.environment_setup import EnvironmentSetup, EnvironmentSetupImpl
-from update_all.constants import UPDATE_ALL_VERSION, DOWNLOADER_URL, ARCADE_ORGANIZER_URL, FILE_update_all_log, \
-    FILE_mister_downloader_needs_reboot, MEDIA_FAT, ARCADE_ORGANIZER_INI, MISTER_DOWNLOADER_VERSION, \
-    UPDATE_ALL_LAUNCHER_PATH, UPDATE_ALL_LAUNCHER_MD5, UPDATE_ALL_URL, EXIT_CODE_REQUIRES_EARLY_EXIT
+from update_all.constants import UPDATE_ALL_VERSION, FILE_update_all_log, FILE_mister_downloader_needs_reboot, MEDIA_FAT, \
+    ARCADE_ORGANIZER_INI, MISTER_DOWNLOADER_VERSION, UPDATE_ALL_LAUNCHER_PATH, UPDATE_ALL_LAUNCHER_MD5, UPDATE_ALL_URL, EXIT_CODE_REQUIRES_EARLY_EXIT
 from update_all.countdown import Countdown, CountdownImpl, CountdownOutcome
 from update_all.ini_repository import IniRepository, active_databases
 from update_all.local_store import LocalStore
@@ -67,6 +67,7 @@ class UpdateAllServiceFactory:
         transition_service = TransitionService(logger=self._logger, file_system=file_system, os_utils=os_utils, ini_repository=ini_repository)
         printer = SettingsScreenStandardCursesPrinter()
         printer.set_config_provider(config_provider)
+        ao_service = ArcadeOrganizerService(self._logger)
         settings_screen = SettingsScreen(
             logger=self._logger,
             config_provider=config_provider,
@@ -77,7 +78,8 @@ class UpdateAllServiceFactory:
             checker=checker,
             local_repository=local_repository,
             store_provider=store_provider,
-            ui_runtime=printer
+            ui_runtime=printer,
+            ao_service=ao_service
         )
         environment_setup = EnvironmentSetupImpl(
             config_reader=config_reader,
@@ -96,7 +98,8 @@ class UpdateAllServiceFactory:
             checker=checker,
             store_provider=store_provider,
             ini_repository=ini_repository,
-            environment_setup=environment_setup
+            environment_setup=environment_setup,
+            ao_service=ao_service
         )
 
 
@@ -110,7 +113,8 @@ class UpdateAllService:
                  checker: Checker,
                  store_provider: GenericProvider[LocalStore],
                  ini_repository: IniRepository,
-                 environment_setup: EnvironmentSetup):
+                 environment_setup: EnvironmentSetup,
+                 ao_service: ArcadeOrganizerService):
         self._config_provider = config_provider
         self._logger = logger
         self._file_system = file_system
@@ -121,6 +125,7 @@ class UpdateAllService:
         self._store_provider = store_provider
         self._ini_repository = ini_repository
         self._environment_setup = environment_setup
+        self._ao_service = ao_service
         self._exit_code = 0
         self._error_reports: List[str] = []
 
@@ -134,8 +139,8 @@ class UpdateAllService:
         self._countdown_for_settings_screen()
         self._pre_run_tweaks()
         self._run_launcher_update()
-        self._run_pocket_tools()
         self._run_downloader()
+        self._run_pocket_tools()
         self._run_arcade_organizer()
         self._run_linux_update()
         self._cleanup()
@@ -307,19 +312,8 @@ class UpdateAllService:
         self._logger.print("Running Arcade Organizer")
         self._logger.print()
 
-        content = self._os_utils.download(ARCADE_ORGANIZER_URL)
-        if content is None:
-            return_code = 1
-        else:
-            temp_file = self._file_system.temp_file_by_id('arcade_organizer.sh')
-            self._file_system.write_file_bytes(temp_file.name, content)
-
-            return_code = self._os_utils.execute_process(temp_file.name, {
-                'SSL_SECURITY_OPTION': config.curl_ssl,
-                'INI_FILE': f'{config.base_path}/{ARCADE_ORGANIZER_INI}'
-            })
-
-        if content is None or return_code != 0:
+        success = self._ao_service.run_arcade_organizer_organize_all_mras(self._ao_service.make_arcade_organizer_config(f'{config.base_path}/{ARCADE_ORGANIZER_INI}'))
+        if success is False:
             self._exit_code = 1
             self._error_reports.append('Arcade Organizer')
 

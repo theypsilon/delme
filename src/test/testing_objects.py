@@ -31,3 +31,7 @@ store_json_zip = f'{MEDIA_FAT}/{FILE_update_all_storage}'
 
 def default_downloader_ini_content():
     return Path('test/fixtures/downloader_ini/default_downloader.ini').read_text()
+
+
+def downloader_ini_content_only_update_all_db():
+    return Path('test/fixtures/downloader_ini/downloader_ini_empty_but_update_all.ini').read_text()
