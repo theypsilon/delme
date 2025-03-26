@@ -33,7 +33,7 @@ def hash_file(path: str) -> str:
 
 subprocess.run(['git', 'fetch', 'origin'], check=True)
 try:
-    subprocess.run(['git', 'checkout', 'db',  '--', 'update_all_db.json'], check=True)
+    subprocess.run(['git', 'checkout', 'origin/db',  '--', 'update_all_db.json'], check=True)
     with open('update_all_db.json', 'r') as json_file:
         old_db = json.load(json_file)
 except Exception as e:
