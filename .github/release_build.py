@@ -34,8 +34,8 @@ if file_has_changed("master", "origin/master", "latest.id"):
 
     print("\nNew dont_download2.sh can be used.")
     with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-        f.write("NEW_RELEASE=yes\n")
+        f.write("new_release=yes\n")
 else:
     print("Nothing to be updated.")
     with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-        f.write("NEW_RELEASE=no\n")
+        f.write("new_release=no\n")
