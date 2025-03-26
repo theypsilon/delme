@@ -56,6 +56,6 @@ jobs:
         git config --global user.name "The CI/CD Bot"
         python3 ./.github/release_db.py 
 
-    - name: Echo New DB
+    - name: Print New DB
       if : steps.release_db.outputs.new_db == 'yes'
       run: echo "New DB"
