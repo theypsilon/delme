@@ -49,8 +49,13 @@ jobs:
         python3 ./.github/release_build.py
 
     - name: Release Database
+      id: release_db
       if: steps.release_build.outputs.new_release == 'yes'
       run: |
         git config --global user.email "theypsilon@gmail.com"
         git config --global user.name "The CI/CD Bot"
         python3 ./.github/release_db.py 
+
+    - name: Echo New DB
+      if : steps.release_db.outputs.new_db == 'yes'
+      run: echo "New DB"

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022-2024 José Manuel Barroso Galindo <theypsilon@gmail.com>
+# Copyright (c) 2022-2025 José Manuel Barroso Galindo <theypsilon@gmail.com>
+
 import copy
 import subprocess
 import os
@@ -21,6 +22,10 @@ def nested_match(a, b):
         return all(nested_match(x, y) for x, y in zip(a, b))
     else:
         return a == b or a == no_check or b == no_check
+
+def set_new_db(new_db: str) -> None:
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+        f.write(f"new_db={new_db}\n")
 
 def hash_file(path: str) -> str:
     with open(path, "rb") as f:
@@ -53,19 +58,10 @@ if update_all_pyz.exists():
 else:
     subprocess.run(['git', 'checkout', 'origin/db', '--', 'update_all.pyz'], check=True)
 
-if not os.path.exists('pocket_firmware_details.json'):
-    print('pocket_firmware_details.json not found. Aborting...')
-    exit(1)
-
 new_db['files'] = {
     'Scripts/.config/update_all/update_all.pyz': {
         'size': os.path.getsize('update_all.pyz'),
         'hash': hash_file('update_all.pyz'),
-        'url': no_check
-    },
-    'Scripts/.config/update_all/pocket_firmware_details.json': {
-        'size': os.path.getsize('pocket_firmware_details.json'),
-        'hash': hash_file('pocket_firmware_details.json'),
         'url': no_check
     }
 }
@@ -78,25 +74,27 @@ new_db['folders'] = {
 for file_path, desc in new_db['files'].items():
     if desc['size'] <= 0:
         print(f"File {file_path} has size {desc['size']}.")
+        set_new_db('no')
         exit(1)
     if len(desc['hash']) != 32:
         print(f"File {file_path} has hash {desc['hash']}.")
+        set_new_db('no')
         exit(1)
 
 if nested_match(old_db, new_db):
     print("Nothing to be updated.")
+    set_new_db('no')
     exit(0)
 
 print("There are changes to push.")
 
 subprocess.run(['git', 'checkout', '--orphan', 'db'], check=True)
 subprocess.run(['git', 'reset'], check=True)
-subprocess.run(['git', 'add', 'update_all.pyz', 'pocket_firmware_details.json'], check=True)
+subprocess.run(['git', 'add', 'update_all.pyz'], check=True)
 subprocess.run(['git', 'commit', '-m', '-'], check=True)
 commit_id = subprocess.getoutput("git rev-parse HEAD")
 
 new_db['files']['Scripts/.config/update_all/update_all.pyz']['url'] = f'https://raw.githubusercontent.com/theypsilon/Update_All_MiSTer/{commit_id}/update_all.pyz'
-new_db['files']['Scripts/.config/update_all/pocket_firmware_details.json']['url'] = f'https://raw.githubusercontent.com/theypsilon/Update_All_MiSTer/{commit_id}/pocket_firmware_details.json'
 
 new_db['timestamp'] = int(time.time())
 with open('update_all_db.json', 'w') as json_file:
@@ -105,3 +103,5 @@ with open('update_all_db.json', 'w') as json_file:
 subprocess.run(['git', 'add', 'update_all_db.json'], check=True)
 subprocess.run(['git', 'commit', '-m', '-'], check=True)
 subprocess.run(['git', 'push', '--force', 'origin', 'db'], check=True)
+
+set_new_db('yes')
