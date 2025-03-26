@@ -77,6 +77,14 @@ new_db['folders'] = {
     'Scripts/.config/update_all': {},
 }
 
+for file_path, desc in new_db['files'].items():
+    if desc['size'] <= 0:
+        print(f"File {file_path} has size {desc['size']}.")
+        exit(1)
+    if len(desc['hash']) != 32:
+        print(f"File {file_path} has hash {desc['hash']}.")
+        exit(1)
+
 if nested_match(old_db, new_db):
     print("Nothing to be updated.")
     exit(0)
