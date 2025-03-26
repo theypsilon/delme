@@ -92,6 +92,8 @@ if nested_match(old_db, new_db):
     exit(0)
 
 print("There are changes to push.")
+print('old_db', old_db)
+print('new_db', new_db)
 
 subprocess.run(['git', 'checkout', '--orphan', 'db'], check=True)
 subprocess.run(['git', 'reset'], check=True)
