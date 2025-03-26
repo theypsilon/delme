@@ -88,7 +88,7 @@ download_file() {
     local DOWNLOAD_PATH="${1}"
     local DOWNLOAD_URL="${2}"
     set +e
-    curl "${CURL_SSL:-}" --silent --fail --location -o "${DOWNLOAD_PATH}" "${DOWNLOAD_URL}"
+    curl ${CURL_SSL:-} --silent --fail --location -o "${DOWNLOAD_PATH}" "${DOWNLOAD_URL}"
     local CMD_RET=$?
     set -e
 
@@ -97,11 +97,11 @@ download_file() {
             return
             ;;
         60|77|35|51|58|59|82|83)
-            echo "No secure connection is possible without fixing the certificates."
+            echo ; echo "No secure connection is possible without fixing the certificates."
             exit 1
             ;;
         *)
-            echo "No Internet connection, please try again later."
+            echo ; echo "No Internet connection, please try again later."
             exit 1
             ;;
     esac
