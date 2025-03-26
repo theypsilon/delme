@@ -46,7 +46,7 @@ class Config:
 
     # Global Updating Toggles
     databases: Set[str] = field(default_factory=lambda: set())
-    arcade_organizer: bool = True
+    arcade_organizer: bool = False
 
     # Specific Updating Toggles
     encc_forks: str = "devel"  # Possible values: "devel", "db9", "aitorgomez"
