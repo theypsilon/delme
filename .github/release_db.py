@@ -84,6 +84,7 @@ if nested_match(old_db, new_db):
 print("There are changes to push.")
 
 subprocess.run(['git', 'checkout', '--orphan', 'db'], check=True)
+subprocess.run(['git', 'reset'], check=True)
 subprocess.run(['git', 'add', 'update_all.pyz', 'pocket_firmware_details.json'], check=True)
 subprocess.run(['git', 'commit', '-m', '-'], check=True)
 commit_id = subprocess.getoutput("git rev-parse HEAD")
