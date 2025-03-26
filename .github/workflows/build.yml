@@ -49,7 +49,7 @@ jobs:
         python3 ./.github/release_build.py
 
     - name: Print New Build
-      if : steps.release_build.outputs.new_release == 'yes'
+      if : steps.release_build.outputs.new_build == 'yes'
       run: echo "New Build"
 
     - name: Release Database
