@@ -37,5 +37,6 @@ if file_has_changed("master", "origin/master", "latest.id"):
         f.write("new_build=yes\n")
 else:
     print("Nothing to be updated.")
+    subprocess.run(['rm', '-rf', 'build'], check=True)
     with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
         f.write("new_build=no\n")
