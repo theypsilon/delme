@@ -52,7 +52,7 @@ jobs:
         python3 ./.github/release_build.py
 
     - name: Release Database
-      if: steps.release_build.outputs.new_release == 'true'
+      if: steps.release_build.outputs.new_release == 'yes'
       run: |
         git config --global user.email "theypsilon@gmail.com"
         git config --global user.name "The CI/CD Bot"
