@@ -91,6 +91,7 @@ commit_id = subprocess.getoutput("git rev-parse HEAD")
 
 new_db['files']['Scripts/.config/update_all/update_all.pyz']['url'] = f'https://raw.githubusercontent.com/theypsilon/Update_All_MiSTer/{commit_id}/update_all.pyz'
 new_db['files']['Scripts/.config/update_all/pocket_firmware_details.json']['url'] = f'https://raw.githubusercontent.com/theypsilon/Update_All_MiSTer/{commit_id}/pocket_firmware_details.json'
+
 new_db['timestamp'] = int(time.time())
 with open('update_all_db.json', 'w') as json_file:
     json.dump(new_db, json_file, indent=4)
