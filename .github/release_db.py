@@ -53,11 +53,9 @@ if update_all_pyz.exists():
 else:
     subprocess.run(['git', 'checkout', 'origin/db', '--', 'update_all.pyz'], check=True)
 
-pocket_firmware_details = Path('build/pocket_firmware_details.json')
-if pocket_firmware_details.exists():
-    pocket_firmware_details.replace('pocket_firmware_details.json')
-else:
-    subprocess.run(['git', 'checkout', 'origin/db', '--', 'pocket_firmware_details.json'], check=True)
+if not os.path.exists('pocket_firmware_details.json'):
+    print('pocket_firmware_details.json not found. Aborting...')
+    exit(1)
 
 new_db['files'] = {
     'Scripts/.config/update_all/update_all.pyz': {
