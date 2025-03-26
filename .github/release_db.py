@@ -63,6 +63,11 @@ new_db['files'] = {
         'size': os.path.getsize('update_all.pyz'),
         'hash': hash_file('update_all.pyz'),
         'url': no_check
+    },
+    'Scripts/update_all.sh': {
+        'size': os.path.getsize('update_all.sh'),
+        'hash': hash_file('update_all.sh'),
+        'url': no_check
     }
 }
 new_db['folders'] = {
@@ -90,11 +95,12 @@ print("There are changes to push.")
 
 subprocess.run(['git', 'checkout', '--orphan', 'db'], check=True)
 subprocess.run(['git', 'reset'], check=True)
-subprocess.run(['git', 'add', 'update_all.pyz'], check=True)
+subprocess.run(['git', 'add', 'update_all.pyz', 'update_all.sh'], check=True)
 subprocess.run(['git', 'commit', '-m', '-'], check=True)
 commit_id = subprocess.getoutput("git rev-parse HEAD")
 
 new_db['files']['Scripts/.config/update_all/update_all.pyz']['url'] = f'https://raw.githubusercontent.com/theypsilon/Update_All_MiSTer/{commit_id}/update_all.pyz'
+new_db['files']['Scripts/update_all.sh']['url'] = f'https://raw.githubusercontent.com/theypsilon/Update_All_MiSTer/{commit_id}/update_all.sh'
 
 new_db['timestamp'] = int(time.time())
 with open('update_all_db.json', 'w') as json_file:

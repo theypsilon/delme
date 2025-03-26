@@ -16,7 +16,7 @@
 # You can download the latest version of this tool from:
 # https://github.com/theypsilon/Update_All_MiSTer
 from update_all.config import Config
-from update_all.constants import FILE_mister_downloader_needs_reboot, UPDATE_ALL_LAUNCHER_PATH, UPDATE_ALL_LAUNCHER_MD5, EXIT_CODE_REQUIRES_EARLY_EXIT
+from update_all.constants import FILE_mister_downloader_needs_reboot, EXIT_CODE_REQUIRES_EARLY_EXIT
 from update_all.environment_setup import EnvironmentSetupResult
 from update_all.local_store import LocalStore
 from update_all.other import GenericProvider
@@ -83,18 +83,6 @@ class TestUpdateAllService(unittest.TestCase):
             files={FILE_mister_downloader_needs_reboot: {'content': 'true'}},
             config=Config(databases=default_databases(), not_mister=True)
         )
-        self.assertEqual(0, sut.full_run())
-
-    def test_full_run___when_launcher_is_present_with_correct_hash___returns_0(self):
-        sut, _ = tester(files={UPDATE_ALL_LAUNCHER_PATH: {'content': 'true', 'hash': UPDATE_ALL_LAUNCHER_MD5}})
-        self.assertEqual(0, sut.full_run())
-
-    def test_full_run___when_launcher_is_present_with_empty_hash___returns_0(self):
-        sut, _ = tester(files={UPDATE_ALL_LAUNCHER_PATH: {'content': 'true', 'hash': ''}})
-        self.assertEqual(0, sut.full_run())
-
-    def test_full_run___when_launcher_is_present_with_wrong_hash___returns_0(self):
-        sut, _ = tester(files={UPDATE_ALL_LAUNCHER_PATH: {'content': 'true', 'hash': 'wrong'}})
         self.assertEqual(0, sut.full_run())
 
     def test_full_run___when_env_setup_requires_early_exit___returns_exit_code_requires_early_exit(self):

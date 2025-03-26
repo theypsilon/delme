@@ -30,7 +30,7 @@ from update_all.config import Config
 from update_all.downloader_utils import prepare_latest_downloader
 from update_all.environment_setup import EnvironmentSetup, EnvironmentSetupImpl
 from update_all.constants import UPDATE_ALL_VERSION, FILE_update_all_log, FILE_mister_downloader_needs_reboot, MEDIA_FAT, \
-    ARCADE_ORGANIZER_INI, MISTER_DOWNLOADER_VERSION, UPDATE_ALL_LAUNCHER_PATH, UPDATE_ALL_LAUNCHER_MD5, UPDATE_ALL_URL, EXIT_CODE_REQUIRES_EARLY_EXIT
+    ARCADE_ORGANIZER_INI, MISTER_DOWNLOADER_VERSION, EXIT_CODE_REQUIRES_EARLY_EXIT
 from update_all.countdown import Countdown, CountdownImpl, CountdownOutcome
 from update_all.ini_repository import IniRepository, active_databases
 from update_all.local_store import LocalStore
@@ -138,7 +138,6 @@ class UpdateAllService:
         self._show_intro()
         self._countdown_for_settings_screen()
         self._pre_run_tweaks()
-        self._run_launcher_update()
         self._run_downloader()
         self._run_pocket_tools()
         self._run_arcade_organizer()
@@ -207,63 +206,6 @@ class UpdateAllService:
             config.update_linux = False
             config.autoreboot = False
 
-    def _run_launcher_update(self) -> None:
-        if not self._file_system.is_file(UPDATE_ALL_LAUNCHER_PATH):
-            self._logger.debug('Launcher update aborted: no current launcher.')
-            return
-
-        launcher_hash = self._file_system.hash(UPDATE_ALL_LAUNCHER_PATH)
-        if len(launcher_hash) == 0:
-            self._logger.debug('Launcher update aborted: launcher hash 0.')
-            return
-
-        if launcher_hash == UPDATE_ALL_LAUNCHER_MD5:
-            self._logger.debug('Launcher update aborted: already current hash.')
-            return
-
-        self._draw_separator()
-        self._logger.print('Installing new Update All launcher')
-        self._logger.print()
-        try:
-            content = self._os_utils.download(UPDATE_ALL_URL)
-            self._file_system.write_file_bytes(UPDATE_ALL_LAUNCHER_PATH, content)
-            self._logger.print('Launcher updated successfully.')
-        except Exception as e:
-            self._logger.debug(e)
-            self._logger.print('Launcher update ignored.')
-
-    def _run_pocket_tools(self) -> None:
-        if not is_pocket_mounted():
-            return
-
-        if self._config_provider.get().pocket_firmware_update:
-            self._draw_separator()
-            self._logger.print('Installing Analogue Pocket Firmware')
-            self._logger.print()
-            if pocket_firmware_update(context_from_curl_ssl(self._config_provider.get().curl_ssl), self._logger):
-                self._logger.print()
-                self._logger.print('Your Pocket firmware is on the latest version.')
-            else:
-                self._logger.print()
-                self._logger.print('Your Pocket firmware could not be updated.')
-                self._os_utils.sleep(6)
-
-            self._logger.print()
-
-        if self._config_provider.get().pocket_backup:
-            self._draw_separator()
-            self._logger.print('Backing up Analogue Pocket')
-            self._logger.print()
-            if pocket_backup(self._logger):
-                self._logger.print()
-                self._logger.print('Your Pocket backup is ready.')
-            else:
-                self._logger.print()
-                self._logger.print('Your Pocket backup could not be created.')
-                self._os_utils.sleep(6)
-
-            self._logger.print()
-
     def _run_downloader(self) -> None:
         config = self._config_provider.get()
         if len(active_databases(config)) == 0:
@@ -302,6 +244,38 @@ class UpdateAllService:
         if return_code != 0:
             self._exit_code = 1
             self._error_reports.append('Scripts/.config/downloader/downloader.log')
+
+    def _run_pocket_tools(self) -> None:
+        if not is_pocket_mounted():
+            return
+
+        if self._config_provider.get().pocket_firmware_update:
+            self._draw_separator()
+            self._logger.print('Installing Analogue Pocket Firmware')
+            self._logger.print()
+            if pocket_firmware_update(context_from_curl_ssl(self._config_provider.get().curl_ssl), self._logger):
+                self._logger.print()
+                self._logger.print('Your Pocket firmware is on the latest version.')
+            else:
+                self._logger.print()
+                self._logger.print('Your Pocket firmware could not be updated.')
+                self._os_utils.sleep(6)
+
+            self._logger.print()
+
+        if self._config_provider.get().pocket_backup:
+            self._draw_separator()
+            self._logger.print('Backing up Analogue Pocket')
+            self._logger.print()
+            if pocket_backup(self._logger):
+                self._logger.print()
+                self._logger.print('Your Pocket backup is ready.')
+            else:
+                self._logger.print()
+                self._logger.print('Your Pocket backup could not be created.')
+                self._os_utils.sleep(6)
+
+            self._logger.print()
 
     def _run_arcade_organizer(self) -> None:
         config = self._config_provider.get()
