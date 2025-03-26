@@ -18,6 +18,7 @@
 # https://github.com/theypsilon/Update_All_MiSTer
 
 import traceback
+import sys
 from update_all.local_repository import LocalRepository
 from update_all.logger import FileLoggerDecorator, PrintLogger
 from update_all.other import GenericProvider
@@ -45,4 +46,4 @@ def main(env):
 
 
 def execute_update_all(factory, env):
-    return factory.create(env).full_run()
+    return factory.create(env).full_run(sys.argv[1] == '--continue' if len(sys.argv) > 1 else False)

@@ -48,7 +48,7 @@ elif [[ "${CURL_SSL:-}" != "--insecure" ]] ; then
     dialog --keep-window --title "Bad Certificates" --defaultno \
         --yesno "CA certificates need to be fixed, do you want me to fix them?\n\nNOTE: This operation will delete files at /etc/ssl/certs" \
         7 65
-    local DIALOG_RET=$?
+    DIALOG_RET=$?
     set -e
 
     if [[ "${DIALOG_RET}" != "0" ]] ; then
@@ -56,7 +56,7 @@ elif [[ "${CURL_SSL:-}" != "--insecure" ]] ; then
         exit 1
     fi
 
-    local RO_ROOT="false"
+    RO_ROOT="false"
     if mount | grep "on / .*[(,]ro[,$]" -q ; then
         RO_ROOT="true"
     fi
@@ -67,8 +67,8 @@ elif [[ "${CURL_SSL:-}" != "--insecure" ]] ; then
     curl --insecure --location -o /tmp/cacert.pem "https://curl.se/ca/cacert.pem"
     curl --insecure --location -o /tmp/cacert.pem.sha256 "https://curl.se/ca/cacert.pem.sha256"
 
-    local DOWNLOAD_SHA256=$(cat /tmp/cacert.pem.sha256 | awk '{print $1}')
-    local CALCULATED_SHA256=$(sha256sum /tmp/cacert.pem | awk '{print $1}')
+    DOWNLOAD_SHA256=$(cat /tmp/cacert.pem.sha256 | awk '{print $1}')
+    CALCULATED_SHA256=$(sha256sum /tmp/cacert.pem | awk '{print $1}')
 
     if [[ "${DOWNLOAD_SHA256}" == "${CALCULATED_SHA256}" ]]; then
         mv /tmp/cacert.pem "${CACERT_PEM_0}"
@@ -101,7 +101,7 @@ download_file() {
             exit 1
             ;;
         *)
-            echo ; echo "No Internet connection, please try again later."
+            echo ; echo "No internet connection, please try again later."
             exit 1
             ;;
     esac
@@ -121,7 +121,20 @@ fi
 echo ; echo
 chmod +x "${RUN_SCRIPT_PATH}"
 
-if ! "${RUN_SCRIPT_PATH}" ; then
+set +e
+${RUN_SCRIPT_PATH}
+UA_RET=$?
+set -e
+
+if [[ ${UA_RET} -eq 2 ]] & [ -s "${LATEST_SCRIPT_PATH}" ] ; then
+    cp "${LATEST_SCRIPT_PATH}" "${RUN_SCRIPT_PATH}"
+    set +e
+    ${RUN_SCRIPT_PATH} --continue
+    UA_RET=$?
+    set -e
+fi
+
+if [[ ${UA_RET} -ne 0 ]] ; then
     echo -e "Update All failed!\n"
     exit 1
 fi

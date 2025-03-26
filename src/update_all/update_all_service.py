@@ -19,7 +19,7 @@ import datetime
 import os
 import sys
 import time
-from typing import List
+from typing import List, Optional
 
 from update_all.analogue_pocket.firmware_update import pocket_firmware_update
 from update_all.analogue_pocket.pocket_backup import pocket_backup
@@ -29,8 +29,10 @@ from update_all.cli_output_formatting import CLEAR_SCREEN
 from update_all.config import Config
 from update_all.downloader_utils import prepare_latest_downloader
 from update_all.environment_setup import EnvironmentSetup, EnvironmentSetupImpl
-from update_all.constants import UPDATE_ALL_VERSION, FILE_update_all_log, FILE_mister_downloader_needs_reboot, MEDIA_FAT, \
-    ARCADE_ORGANIZER_INI, MISTER_DOWNLOADER_VERSION, EXIT_CODE_REQUIRES_EARLY_EXIT
+from update_all.constants import UPDATE_ALL_VERSION, FILE_update_all_log, FILE_mister_downloader_needs_reboot, \
+    MEDIA_FAT, \
+    ARCADE_ORGANIZER_INI, MISTER_DOWNLOADER_VERSION, EXIT_CODE_REQUIRES_EARLY_EXIT, FILE_update_all_pyz, \
+    EXIT_CODE_CAN_CONTINUE
 from update_all.countdown import Countdown, CountdownImpl, CountdownOutcome
 from update_all.ini_repository import IniRepository, active_databases
 from update_all.local_store import LocalStore
@@ -129,16 +131,26 @@ class UpdateAllService:
         self._exit_code = 0
         self._error_reports: List[str] = []
 
-    def full_run(self) -> int:
-        env_result = self._environment_setup.setup_environment()
-        if env_result.requires_early_exit:
-            return EXIT_CODE_REQUIRES_EARLY_EXIT
+    def full_run(self, cont: bool) -> int:
+        if cont:
+            self._environment_setup.setup_environment()
+            self._pre_run_tweaks()
+        else:
+            env_result = self._environment_setup.setup_environment()
+            if env_result.requires_early_exit:
+                return EXIT_CODE_REQUIRES_EARLY_EXIT
 
-        self._test_routine()
-        self._show_intro()
-        self._countdown_for_settings_screen()
-        self._pre_run_tweaks()
-        self._run_downloader()
+            self._test_routine()
+            self._show_intro()
+            self._countdown_for_settings_screen()
+            self._pre_run_tweaks()
+
+            update_all_mtime = self._get_mtime()
+            self._run_downloader()
+
+            if update_all_mtime is not None and update_all_mtime != self._get_mtime():
+                return EXIT_CODE_CAN_CONTINUE
+
         self._run_pocket_tools()
         self._run_arcade_organizer()
         self._run_linux_update()
@@ -206,6 +218,14 @@ class UpdateAllService:
             config.update_linux = False
             config.autoreboot = False
 
+    @staticmethod
+    def _get_mtime() -> Optional[float]:
+        mtime_path = os.path.join('/media/fat', FILE_update_all_pyz)
+        if not os.path.exists(mtime_path):
+            return None
+
+        return os.path.getmtime(mtime_path)
+
     def _run_downloader(self) -> None:
         config = self._config_provider.get()
         if len(active_databases(config)) == 0:
@@ -242,7 +262,7 @@ class UpdateAllService:
             return_code = self._os_utils.execute_process(downloader_file, env)
 
         if return_code != 0:
-            self._exit_code = 1
+            self._exit_code = 10
             self._error_reports.append('Scripts/.config/downloader/downloader.log')
 
     def _run_pocket_tools(self) -> None:
@@ -288,7 +308,7 @@ class UpdateAllService:
 
         success = self._ao_service.run_arcade_organizer_organize_all_mras(self._ao_service.make_arcade_organizer_config(f'{config.base_path}/{ARCADE_ORGANIZER_INI}'))
         if success is False:
-            self._exit_code = 1
+            self._exit_code = 12
             self._error_reports.append('Arcade Organizer')
 
         self._logger.print()
@@ -322,7 +342,7 @@ class UpdateAllService:
         return_code = self._os_utils.execute_process(temp_file.name, env)
 
         if return_code != 0:
-            self._exit_code = 1
+            self._exit_code = 11
             self._error_reports.append('Scripts/.config/downloader/update_linux.log')
 
     def _cleanup(self) -> None:

@@ -30,6 +30,7 @@ MISTER_ENVIRONMENT = 'mister'
 STANDARD_UI_THEME = 'Blue Installer'
 
 # Downloader files
+FILE_update_all_pyz = 'Scripts/.config/update_all/update_all.pyz'
 FILE_update_all_storage = 'Scripts/.config/update_all/update_all.json.zip'
 FILE_update_all_log = 'Scripts/.config/update_all/update_all.log'
 FILE_update_all_ini = 'Scripts/update_all.ini'
@@ -97,8 +98,8 @@ KENV_KEY_IGNORE_TIME = 'KEY_IGNORE_TIME'
 KENV_TRANSITION_SERVICE_ONLY = 'TRANSITION_SERVICE_ONLY'
 
 # Exit codes
-EXIT_CODE_REQUIRES_EARLY_EXIT = 40
-
+EXIT_CODE_REQUIRES_EARLY_EXIT = 1
+EXIT_CODE_CAN_CONTINUE = 2
 
 @unique
 class PathType(Enum):
