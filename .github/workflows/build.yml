@@ -37,11 +37,21 @@ jobs:
       run: cd src && python3 -m unittest discover -s test/system
 
     - name: Build
-      run: ./src/build.sh > dont_download2.sh
+      run: |
+        set -euo pipefail
+        SKIP_COMMIT=true ./src/build.sh | sha256sum > latest.id
+        ./src/build.sh > dont_download2.sh
 
-    - name: Release
-      id: release
+    - name: Release Build
+      id: release_build
       run: |
         git config --global user.email "theypsilon@gmail.com"
         git config --global user.name "The CI/CD Bot"
-        ./.github/release_build.sh
+        python3 ./.github/release_build.py
+
+    - name: Release Database
+      if: steps.release_build.outputs.new_release == 'true'
+      run: |
+        git config --global user.email "theypsilon@gmail.com"
+        git config --global user.name "The CI/CD Bot"
+        python3 ./.github/release_db.py 
