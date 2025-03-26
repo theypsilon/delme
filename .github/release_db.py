@@ -97,4 +97,4 @@ with open('update_all_db.json', 'w') as json_file:
 
 subprocess.run(['git', 'add', 'update_all_db.json'], check=True)
 subprocess.run(['git', 'commit', '-m', '-'], check=True)
-subprocess.run(['git', 'push', 'origin', 'db'], check=True)
+subprocess.run(['git', 'push', '--force', 'origin', 'db'], check=True)
