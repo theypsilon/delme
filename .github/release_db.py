@@ -51,13 +51,13 @@ update_all_pyz = Path('build/update_all.pyz')
 if update_all_pyz.exists():
     update_all_pyz.replace('update_all.pyz')
 else:
-    subprocess.run(['git', 'checkout', 'db', '--', 'update_all.pyz'], check=True)
+    subprocess.run(['git', 'checkout', 'origin/db', '--', 'update_all.pyz'], check=True)
 
 pocket_firmware_details = Path('build/pocket_firmware_details.json')
 if pocket_firmware_details.exists():
     pocket_firmware_details.replace('pocket_firmware_details.json')
 else:
-    subprocess.run(['git', 'checkout', 'db', '--', 'pocket_firmware_details.json'], check=True)
+    subprocess.run(['git', 'checkout', 'origin/db', '--', 'pocket_firmware_details.json'], check=True)
 
 new_db['files'] = {
     'Scripts/.config/update_all/update_all.pyz': {
