@@ -31,7 +31,8 @@ STANDARD_UI_THEME = 'Blue Installer'
 
 # Downloader files
 FILE_update_all_pyz = 'Scripts/.config/update_all/update_all.pyz'
-FILE_update_all_storage = 'Scripts/.config/update_all/update_all.json.zip'
+FILE_update_all_zipped_storage = 'Scripts/.config/update_all/update_all.json.zip'
+FILE_update_all_storage = 'Scripts/.config/update_all/update_all.json'
 FILE_update_all_log = 'Scripts/.config/update_all/update_all.log'
 FILE_update_all_ini = 'Scripts/update_all.ini'
 FILE_update_jtcores_ini = 'Scripts/update_jtcores.ini'

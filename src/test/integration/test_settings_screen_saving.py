@@ -22,7 +22,7 @@ from typing import Tuple
 from test.file_system_tester_state import FileSystemState
 from test.ini_assertions import assertEqualIni
 from test.testing_objects import downloader_ini, update_arcade_organizer_ini, default_downloader_ini_content, \
-    store_json_zip, downloader_ini_content_only_update_all_db
+    downloader_ini_content_only_update_all_db, store_json, store_json_zip
 from test.update_all_service_tester import SettingsScreenTester, UiContextStub, EnvironmentSetupTester
 from update_all.config import Config
 from update_all.ini_repository import read_ini_contents
@@ -31,6 +31,8 @@ from update_all.other import GenericProvider
 from test.fake_filesystem import FileSystemFactory
 from update_all.databases import db_ids_to_model_variable_pairs
 from update_all.settings_screen import SettingsScreen
+from update_all.store_migrator import make_new_local_store, StoreMigrator
+from update_all_service_tester import StoreMigratorTester
 
 
 class TestSettingsScreenSaving(unittest.TestCase):
@@ -168,14 +170,14 @@ class TestSettingsScreenSaving(unittest.TestCase):
         sut.calculate_needs_save(ui)
         sut.save(ui)
 
-        self.assertEqual(initial_value, fs.files[store_json_zip.lower()]['unzipped_json'][field])
+        self.assertEqual(initial_value, fs.files[store_json.lower()]['json'][field])
 
         ui.set_value(field, str(not initial_value))
 
         sut.calculate_needs_save(ui)
         sut.save(ui)
 
-        self.assertEqual(not initial_value, fs.files[store_json_zip.lower()]['unzipped_json'][field])
+        self.assertEqual(not initial_value, fs.files[store_json.lower()]['json'][field])
 
     def test_save__when_selecting_theme___writes_changes_on_local_store(self):
         sut, ui, fs = tester(files={downloader_ini: {'content': default_downloader_ini_content()}})
@@ -186,9 +188,19 @@ class TestSettingsScreenSaving(unittest.TestCase):
         sut.calculate_needs_save(ui)
         sut.save(ui)
 
-        self.assertEqual(69, fs.files[store_json_zip.lower()]['unzipped_json']['wait_time_for_reading'])
-        self.assertEqual('Cyan Night', fs.files[store_json_zip.lower()]['unzipped_json']['theme'])
+        self.assertEqual(69, fs.files[store_json.lower()]['json']['wait_time_for_reading'])
+        self.assertEqual('Cyan Night', fs.files[store_json.lower()]['json']['theme'])
 
+    def test_save__after_loading_from_store_json_zip___keeps_same_non_default_value_on_new_store_json_file(self):
+        local_store = make_new_local_store(StoreMigratorTester())
+        default_theme = local_store['theme']
+        local_store['theme'] = 'Cyan Night'
+        self.assertNotEqual(default_theme, local_store['theme'])
+
+        sut, ui, fs = tester(files={store_json_zip: {'unzipped_json': local_store}})
+        sut.save(ui)
+
+        self.assertEqual('Cyan Night', fs.files[store_json.lower()]['json']['theme'])
 
 def tester(files=None) -> Tuple[SettingsScreen, UiContextStub, FileSystemState]:
     ui = UiContextStub()

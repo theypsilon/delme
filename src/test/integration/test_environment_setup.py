@@ -20,7 +20,7 @@ from typing import Dict, Any
 from test.ini_assertions import testableIni
 from test.testing_objects import downloader_ini, update_all_ini, update_arcade_organizer_ini, update_jtcores_ini, update_names_txt_ini
 from update_all.config import Config
-from update_all.constants import KENV_DEBUG, KENV_LOCATION_STR, KENV_TRANSITION_SERVICE_ONLY
+from update_all.constants import KENV_DEBUG, KENV_LOCATION_STR, KENV_TRANSITION_SERVICE_ONLY, FILE_update_all_storage
 from update_all.databases import DB_ID_NAMES_TXT, AllDBs, DB_ID_ARCADE_NAMES_TXT
 from update_all.environment_setup import EnvironmentSetupResult
 from update_all.local_store import LocalStore
@@ -52,7 +52,7 @@ class TestEnvironmentSetup(unittest.TestCase):
 
         config = config_provider.get()
         config.start_time = 0.0
-        self.assertEqual(expected_files, {k: processIni(v['content'].strip()) for k, v in state.files.items() if 'content' in v})
+        self.assertEqual(expected_files, {k: processIni(v['content'].strip()) for k, v in state.files.items() if 'content' in v and not k.endswith(FILE_update_all_storage.lower())})
         self.assertEqual(expected_config or Config(), config)
         self.assertEqual(expected_result or EnvironmentSetupResult(), result)
 

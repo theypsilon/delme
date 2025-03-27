@@ -40,7 +40,7 @@ def settings_screen_model(): return {
         "bios_getter": {"group": ["ua_ini", "db"], "default": "false", "values": ["false", "true"]},
         "arcade_roms_db_downloader": {"group": ["ua_ini", "db"], "default": "false", "values": ["false", "true"]},
         "names_txt_updater": {"group": ["ua_ini", "db"], "default": "false", "values": ["false", "true"]},
-        "arcade_organizer": {"group": ["ua_ini", "ao_ini"], "default": "default", "values": ["false", "true"]},
+        "arcade_organizer": {"group": ["ua_ini", "ao_ini"], "default": "true", "values": ["false", "true"]},
 
         # Internal variables
         "file_exists": {"default": "false", "values": ["false", "true"]},

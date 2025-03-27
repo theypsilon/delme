@@ -16,6 +16,7 @@
 # You can download the latest version of this tool from:
 # https://github.com/theypsilon/Update_All_MiSTer
 import datetime
+import enum
 import os
 import sys
 import time
@@ -49,6 +50,11 @@ from update_all.file_system import FileSystemFactory, FileSystem
 from update_all.config_reader import ConfigReader
 from update_all.transition_service import TransitionService
 
+
+class UpdateAllServicePass(enum.Enum):
+    NewRun = enum.auto()
+    Continue = enum.auto()
+    NewRunNonStop = enum.auto()
 
 class UpdateAllServiceFactory:
     def __init__(self, logger: Logger, local_repository_provider: GenericProvider[LocalRepository]):
@@ -131,8 +137,8 @@ class UpdateAllService:
         self._exit_code = 0
         self._error_reports: List[str] = []
 
-    def full_run(self, cont: bool) -> int:
-        if cont:
+    def full_run(self, run_pass: UpdateAllServicePass) -> int:
+        if run_pass == UpdateAllServicePass.Continue:
             self._environment_setup.setup_environment()
             self._pre_run_tweaks()
         else:
@@ -148,7 +154,7 @@ class UpdateAllService:
             update_all_mtime = self._get_mtime()
             self._run_downloader()
 
-            if update_all_mtime is not None and update_all_mtime != self._get_mtime():
+            if run_pass == UpdateAllServicePass.NewRun and update_all_mtime is not None and update_all_mtime != self._get_mtime():
                 return EXIT_CODE_CAN_CONTINUE
 
         self._run_pocket_tools()

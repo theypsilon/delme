@@ -97,7 +97,8 @@ print('new_db', new_db)
 
 subprocess.run(['git', 'checkout', '--orphan', 'db'], check=True)
 subprocess.run(['git', 'reset'], check=True)
-subprocess.run(['git', 'add', 'update_all.pyz', 'update_all.sh'], check=True)
+subprocess.run('sha256sum update_all.pyz > update_all.pyz.sha256', shell=True, check=True)
+subprocess.run(['git', 'add', 'update_all.pyz', 'update_all.pyz.sha256', 'update_all.sh'], check=True)
 subprocess.run(['git', 'commit', '-m', '-'], check=True)
 commit_id = subprocess.getoutput("git rev-parse HEAD")
 
