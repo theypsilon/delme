@@ -19,20 +19,21 @@ import unittest
 from pathlib import Path
 from typing import Tuple
 
+from update_all.config import Config
+from update_all.ini_repository import read_ini_contents
+from update_all.local_store import LocalStore
+from update_all.other import GenericProvider
+from update_all.databases import db_ids_to_model_variable_pairs
+from update_all.settings_screen import SettingsScreen
+from update_all.store_migrator import make_new_local_store
+
 from test.file_system_tester_state import FileSystemState
 from test.ini_assertions import assertEqualIni
 from test.testing_objects import downloader_ini, update_arcade_organizer_ini, default_downloader_ini_content, \
     downloader_ini_content_only_update_all_db, store_json, store_json_zip
 from test.update_all_service_tester import SettingsScreenTester, UiContextStub, EnvironmentSetupTester
-from update_all.config import Config
-from update_all.ini_repository import read_ini_contents
-from update_all.local_store import LocalStore
-from update_all.other import GenericProvider
 from test.fake_filesystem import FileSystemFactory
-from update_all.databases import db_ids_to_model_variable_pairs
-from update_all.settings_screen import SettingsScreen
-from update_all.store_migrator import make_new_local_store, StoreMigrator
-from update_all_service_tester import StoreMigratorTester
+from test.update_all_service_tester import StoreMigratorTester
 
 
 class TestSettingsScreenSaving(unittest.TestCase):

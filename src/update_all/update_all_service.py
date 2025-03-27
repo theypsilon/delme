@@ -33,7 +33,7 @@ from update_all.environment_setup import EnvironmentSetup, EnvironmentSetupImpl
 from update_all.constants import UPDATE_ALL_VERSION, FILE_update_all_log, FILE_mister_downloader_needs_reboot, \
     MEDIA_FAT, \
     ARCADE_ORGANIZER_INI, MISTER_DOWNLOADER_VERSION, EXIT_CODE_REQUIRES_EARLY_EXIT, FILE_update_all_pyz, \
-    EXIT_CODE_CAN_CONTINUE
+    EXIT_CODE_CAN_CONTINUE, supporter_plus_patrons
 from update_all.countdown import Countdown, CountdownImpl, CountdownOutcome
 from update_all.ini_repository import IniRepository, active_databases
 from update_all.local_store import LocalStore
@@ -51,10 +51,11 @@ from update_all.config_reader import ConfigReader
 from update_all.transition_service import TransitionService
 
 
+@enum.unique
 class UpdateAllServicePass(enum.Enum):
-    NewRun = enum.auto()
-    Continue = enum.auto()
-    NewRunNonStop = enum.auto()
+    NewRun = 0
+    Continue = 1
+    NewRunNonStop = 2
 
 class UpdateAllServiceFactory:
     def __init__(self, logger: Logger, local_repository_provider: GenericProvider[LocalRepository]):
@@ -374,12 +375,19 @@ class UpdateAllService:
             self._logger.print()
             self._logger.print("Maybe a network problem?")
             self._logger.print("Check your connection and then run this script again.")
+            self._logger.print()
+            self._logger.print(f"Full log for more details: {FILE_update_all_log}")
         else:
-            self._logger.print('Your MiSTer has been updated successfully!')
+            self._logger.print(f"Success! More details at: {FILE_update_all_log}")
 
         self._logger.print()
-        self._logger.print(f"Full log for more details: {FILE_update_all_log}")
-        self._logger.print()
+        days_since_epoch = int(time.time() // 86400) +1
+        supporter_of_the_day = supporter_plus_patrons[days_since_epoch % len(supporter_plus_patrons)]
+        longer_msg = f'Today\'s shoutout is for {supporter_of_the_day}! - Join us at patreon.com/theypsilon'
+        if len(longer_msg) <= 80:
+            self._logger.print(longer_msg)
+        else:
+            self._logger.print(f'Shoutout to {supporter_of_the_day}! patreon.com/theypsilon')
 
     def _reboot_if_needed(self) -> None:
         if self._config_provider.get().not_mister:

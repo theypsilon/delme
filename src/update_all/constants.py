@@ -19,6 +19,10 @@
 # Default SSL option
 from enum import unique, Enum
 
+# From patreon.com/theypsilon
+supporter_plus_patrons = ('Alex Frégeau', 'Luca Fiandri', "The Sentinel's Playground Team", 'Thomas Williams', 'Wayne Booker')
+
+# Default options
 DEFAULT_CURL_SSL_OPTIONS = '--cacert /etc/ssl/certs/cacert.pem'
 DEFAULT_COMMIT = 'unknown'
 DEFAULT_LOCATION_STR = 'MiSTer'
