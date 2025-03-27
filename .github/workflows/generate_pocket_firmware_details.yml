@@ -36,8 +36,6 @@ jobs:
           echo "changed=false" >> $GITHUB_OUTPUT
           echo "sha=" >> $GITHUB_OUTPUT
         else
-          cp ../build/pocket_firmware_details.json ../pocket_firmware_details.json
-          git add ../pocket_firmware_details.json 
           git commit -m "BOT: Analogue Pocket firmware details updated"
           git push
           echo "Changes committed and pushed, build needs to be triggered."
