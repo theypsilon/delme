@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## Version 2.2 - 2025-03-X
+## Version 2.2 - 2025-03-27
 
 ### Added
 - Added update_all_mister database, which contains Update All files to improve the self-update process and enable more utilities to be installed in the future.
@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changes
 - The new update_all_mister database will be appended to downloader.ini automatically.
+- The Arcade Organizer is now using to the new official [ArcadeDatabase](https://github.com/MiSTer-devel/ArcadeDatabase_MiSTer) for the metadata, which is a direct continuation of the work done by Toya, and still maintained by him.
 - The downloader log is now correctly written to update_all.log, along with the rest of Update All's output.
 - The launcher has been changed:
   - It now takes certificates installed by the distribution_mister database, substantially reducing the possibility of certificate problems.
