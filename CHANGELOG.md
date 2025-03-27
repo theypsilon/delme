@@ -4,12 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## Version 2.2 - 2025-03-27
+## Version 2.2 - 2025-03-28
 
 ### Added
 - Added update_all_mister database, which contains Update All files to improve the self-update process and enable more utilities to be installed in the future.
 - Arcade Organizer is now part of Update All codebase, which improves execution speed, fixes bugs and simplifies maintenance. As result, the Arcade Organizer log now appears in update_all.log.
-- New option to enable the distribution_main alternative database from Aitor Gomez which contains his custom version of the firmware.
+- New option to enable the distribution_main alternative database from Aitor Gómez which contains his custom version of the firmware (PR by Aitor Gómez).
 - It is now possible to install Update All without remote code execution. The new section in the [README.md](README.md#how-to-avoid-executing-remote-code-altogether) shows how to do it.
 - Added Patreon shoutout line that prints the supporter of the day at the end of the run.
 
